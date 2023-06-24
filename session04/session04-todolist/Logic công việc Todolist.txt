@@ -1,0 +1,99 @@
+Logic công việc:
+THÊM VIỆC CẦN LÀM
+Người dùng nhập việc cần làm vào ô Input và nhấn vào nút Add
+=> Việc cần làm xuất hiện ngay dưới ô Input (để biết được rằng dữ liệu đã được thêm thành công)
+=> Phần thông báo cập nhật các việc cần làm
+SỬA VIỆC CẦN LÀM ĐÃ THÊM
+Người dùng nhấn vào nút Edit của một việc cần làm bất kỳ
+=> Tại vị trí việc cần làm vừa nhấn, hiện ô Input kèm theo dữ liệu về việc cần làm trước đó
+=> Nút Edit trở thành 2 nút: Save và Cancel
+=> Khi người dùng sửa xong, nhấn Save thì cập nhật việc cần làm mới
+=> Khi người dùng nhấn vào nút Cancel thì hiển thị lại danh sách như lúc trước khi sửa
+=> Nếu người dùng nhấn vào nút Delete, (gọi tác động giống như Cancel) và gọi tác vụ xóa
+XÓA VIỆC ĐÃ THÊM
+Người dùng nhấn vào nút xóa
+=> Xóa việc cần làm tại vị trí vừa nhấn
+
+Logic db
+1. Cần 1 db để render các việc cần làm từ đó
+2. Khi một việc mới được thêm vào db, thêm việc đó sao cho để khi render ra, việc mới hơn lên trên đầu
+=> const [tasks, setTasks] = useState([
+{id: 1, taskContent: "Do errands", isEditing: false , isCompleted: false}
+])
+Sơ bộ:
+1 task sẽ cần có: id, taskContent: nội dung việc cần làm, isCompleted: trạng thái đã hoàn thành hay chưa
+Bổ sung:
+1 task sẽ cần có thêm các trạng thái: isEditing: trạng thái có phải đang được sửa hay không
+
+Logic việc cần làm:
+[ ] Xử lý khi nhấn vào nút Delete <=> isCompleted: true
+[ ] Xử lý khi nhấn vào nút Edit <=> isEditing: true
+[ ] Cập nhật số lượng việc cần làm: đếm số lượng việc cần làm có isCompleted: false
+
+
+Logic biến & hàm
+- Số lượng việc cần làm được theo dõi bởi một biến trạng thái count
+	const [count, setCount] = useState(0);
+	[*] dùng useEffect: chạy hàm calculateUnCompletedTask() trả về số lượng phần tử có thuộc tính isCompleted: false và dùng giá trị này để gán cho biến count: setCount(calculateUnCompletedTask())
+Việc cần làm khác
+[ ] Viết giao diện khi nhấn vào nút edit thì sẽ đổi thành ra sao
+[ ] Thêm chức năng sắp xếp theo Alphabet
+[ ] Thêm chức năng quản lý thời gian
+[ ] Thêm chức năng nhắc nhỏ
+Trình tự theo Logic công việc:
+[Chuẩn bị]
+=> const [tasks, setTasks] = useState([])
+[Bắt đầu]
+THÊM VIỆC CẦN LÀM
+##########Chuẩn bị###########
+[X] Tạo khung để render item
+=> Nhận props từ Apps => truyền props trong function component như thế nào?
+=> (Mỗi lần có state thay đổi là giao diện sẽ render lại hết => cần ngăn cản điều này, chỉ để render lại khi cần thiết, chẳng hạn khi isEditing thay đổi => dùng useEffect với [], [SAU KHI TEST] với isEditing là một thuộc tính trong tận object thì việc thay đổi giá của isEditing không dẫn tới việc re-render => tạm thời loại bỏ useEffect)
+##########################
+Người dùng nhập việc cần làm vào ô Input (1) và nhấn vào nút Add (2)
+=> Không cần sự kiện onChange ở ô Input [?]
+=> Chỉ cần sự kiện onClick ở nút Add
+onClick={handleClick}
+const handleClick = () => {
+//TODO: set input value as argument of setTasks
+	//PROBLEM:
+		(1) set new task as the first element of array
+			=> setTasks([%input object%, ...tasks])
+	(React auto re-render)
+	//PROBLEM:
+		(2) lifting state up? cần truyền từ con lên cha => tạo hàm cần thiết để truyền từ Form, cập nhật state lên App
+#########Thử nghiệm#########
+[ ] Truyền thẳng setTasks cho Form qua props, nếu ko ổn thì thiết kế hàm
+#########################
+#########Vấn đề###########
+[X] Làm sao để lấy dữ liệu từ ô input
+[?] Làm sao để dữ liệu dạng String set vào vị trí taskContent => set cả object
+Làm sao để lưu vào đầu => unshift
+=> cần viết hàm xử lý khi có dữ liệu đầu vào là một string (sau đó set vào taskContent)
+=> truyền hàm đó xuống Form là được
+[?] Trong component Form, có set value cho ô Input không và nếu có thì set bằng cái gì?
+[X] Vì sao không gõ được vào ô Input
+[ ] Vì sao thêm được task nhưng dữ liệu bị trắng => không truyền được dữ liệu lên trên à?
+[?] Vì sao event.target.value ở handleClick bị trắng? liệu có phải là do re-render? (đã giải quyết bằng cách lưu dữ liệu liên tục mỗi lần re-render lại nhờ vào onChange)
+########################
+Đã thêm xong phần tử vào, cần review lại code, đọc bài đọc và tổng kết thông tin, tổng kết quy trình làm việc, tích lũy thật nhiều quy trình làm việc và tăng tốc làm việc lên
+[ ] Đếm số task [FOCUSING]
+=> viết hàm update số count khi isEditing thay đổi, khi tasks thay đổi => không thể làm được điều này khi useEffect chỉ nhận các state của bản thân component đó
+=> làm sao để hàm tự chạy
+[#] Tham khảo code và cách làm của người khác
+########################
+Thêm chế độ HOÀN THÀNH
+[X] Thêm popover cho các nút không tên này
+[ ] Thêm chức năng đổi trạng thái isCompleted cho một dữ liệu nào đó => tác động ở Total, cần lấy key và findIndex?, truyền ngược lên cha
+[?] React sử dụng key như thế nào và chúng ta có thể lợi dụng điều này như thế nào?
+#########Thử nghiệm#########
+Trước hết thử viết hàm đổi thẳng giá trị complete => cần truyền hàm vào chứ không đổi thẳng được
+=> cần đi viết hàm
+Ở App, sẽ cần viết 1 hàm nhận vào id/index để tìm ra vị trí của cái cần sửa
+[ ] Tìm phần tử trong tasks thông qua id như thế nào? dùng findIndex
+[?] Sửa như thế nào? => dùng splice, xóa cái cũ đi, thêm cái mới sửa vào, lại dùng setState để nhét vào lại
+
+[TẠM DỪNG] Mình đang bị mất hết tất cả những gì đã làm từ trước tới giờ
+đang dừng ở chỗ tìm cách truyền được task.id lên App (component cha) từ Item (component con)
+#########################
+}
